@@ -1,9 +1,11 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
 public class Verteilung {
-    private static String path = "zimmerbelegung5.txt";
+    private static String path = "zimmerbelegung1";
     private static boolean istMoeglich = true;
 
     public static void main(String[] args) {
@@ -14,35 +16,64 @@ public class Verteilung {
         }
         ArrayList<Zimmer> zimmer = verteile(personen);
         System.out.println("");
-        System.out.println("Verteilung ist moeglich: " + istMoeglich);
+        boolean moeglich2= istTrue(zimmer);
+        System.out.println("Verteilung ist moeglich: " + (istMoeglich&&moeglich2));
         System.out.println("");
-        if (istMoeglich) {
+
+        if (istMoeglich&&moeglich2) {
             int persos=0;
             for(Zimmer z:zimmer){
                 persos+=z.personen.size();
             }
             System.out.println(persos);
-            System.out.println("IST MÖGLICH: " + istTrue(zimmer));
             for (Zimmer z : zimmer) {
                 System.out.println(z.toString());
             }
-        }
-    }
 
+        }
+        writeZimmer(zimmer,istMoeglich&&moeglich2);
+    }
+    public static void writeZimmer(ArrayList<Zimmer> zimmer, boolean verteilung_moeglich){
+        try {
+            FileWriter fw = new FileWriter(path + "-loes.txt");
+            BufferedWriter bw = new BufferedWriter(fw);
+            if (verteilung_moeglich) {
+                for (Zimmer z : zimmer) {
+                    String s = "";
+                    for (Person p : z.personen) {
+                        if (z.personen.size() == 1 && z.personen.get(0).getLike().size() == 0 && z.personen.get(0).getDislike().size() == 0) {
+                            s += p.getName() + "(Egal) ";
+                        } else {
+                            s += p.getName() + " ";
+                        }
+                    }
+                    bw.write(s + "\n");
+                }
+
+            }else{
+                bw.write("Verteilung nicht möglich");
+            }
+            bw.close();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+    }
     public static boolean istTrue(ArrayList<Zimmer> zimmer) {
+        if(zimmer==null)return false;
         for (Zimmer z : zimmer) {
             for (Person p : z.personen) {
                 for (String s : p.getLike()) {
                     if (!z.personen.contains(new Person(s))) {
-                        System.out.println("False bei Zimmer: " + z.toString());
-                        System.out.println("False bei Person(like): : " + p.toString());
+                        //System.out.println("False bei Zimmer: " + z.toString());//DEBUG
+                        //System.out.println("False bei Person(like): : " + p.toString());//DEBUG
                         return false;
                     }
                 }
                 for (String s : p.getDislike()) {
                     if (z.personen.contains(new Person(s))) {
-                        System.out.println("False bei Zimmer: " + z.toString());
-                        System.out.println("False bei Person(dislike): : " + p.toString());
+                        //System.out.println("False bei Zimmer: " + z.toString());//DEBUG
+                        //System.out.println("False bei Person(dislike): : " + p.toString());//DEBUG
                         return false;
                     }
                 }
@@ -62,7 +93,6 @@ public class Verteilung {
                     z.nogos.addAll(person.getDislike());
                     if (!z.getState()) {
                         istMoeglich = false;
-                        System.exit(100);
                         return null;
                     }
                     zimmer = mergeEinzelZimmer(zimmer);
@@ -77,7 +107,6 @@ public class Verteilung {
                         z.nogos.addAll(person.getDislike());
                         if (!z.getState()) {
                             istMoeglich = false;
-                            System.exit(100);
                             return null;
                         }
                         zimmer = mergeEinzelZimmer(zimmer);
@@ -97,16 +126,16 @@ public class Verteilung {
                 toRemove.add(z);
             }
         }
-
-        //SWAP
+        zimmer = mergeEinzelZimmer(zimmer);
+        //Zimmerzusammenlegung
         A:for (int i = 0; i <zimmer.size() ; i++) {
             for (int j = i+1; j < zimmer.size(); j++) {
                 Zimmer zi = zimmer.get(i);
-                if(zi.personen.size()==0){
+                if(zi.personen.size()<2){
                     continue A;
                 }
                 Zimmer zj = zimmer.get(j);
-                if (zj.personen.size() > 0) {
+                if (zj.personen.size() > 1) {
                     if (kannZusammenGelegtWerden(zi, zj)) {
                         for (Person p : zj.personen) {
                             zi.personen.add(p);
@@ -123,30 +152,7 @@ public class Verteilung {
             zimmer.remove(z);
         }
         toRemove.clear();
-
-        for(Zimmer z: zimmer){
-            if(z.personen.size()==1){
-                System.out.println("alleine für immer: "+z.personen.get(0).getName());
-                Person p= z.personen.get(0);
-                for(Zimmer zx: zimmer){
-                    if(zx.likes.contains(p.getName())){
-                        zx.personen.add(p);
-                        zx.likes.addAll(p.getLike());
-                        zx.nogos.addAll(p.getDislike());
-                        z.personen.clear();
-                        if(!z.getState()){
-                            istMoeglich=false;
-                            System.exit(100);
-                            return null;
-                        }
-                    }
-                }
-            }
-        }
-
-        for(Zimmer z: toRemove){
-            zimmer.remove(z);
-        }
+        //zimmer=mergeEinzelZimmer(zimmer);
 
         return zimmer;
     }
@@ -213,7 +219,7 @@ public class Verteilung {
     }
 
     public static ArrayList<Person> addPersonen() {
-        ArrayList<String> daten = liesDatenVonFile(path);
+        ArrayList<String> daten = liesDatenVonFile(path+".txt");
         ArrayList<Person> personen = new ArrayList<>();
         int anzPersonen = daten.size();
         for (int i = 0; i < anzPersonen; i += 4) {
@@ -238,7 +244,9 @@ public class Verteilung {
                     }
                 } while (c != ' ');
                 k += likeName.length() + 1;
-                likes.add(likeName);
+                if(!likeName.equals(name)) {
+                    likes.add(likeName);
+                }
             }
             String dislikess = daten.get(i + 2);
             dislikess = dislikess.substring(2);
@@ -259,7 +267,9 @@ public class Verteilung {
                     }
                 } while (c != ' ');
                 k += likeName.length() + 1;
-                dislikes.add(likeName);
+                if(!likeName.equals(name)) {
+                    dislikes.add(likeName);
+                }
             }
             personen.add(new Person(likes, dislikes, name));
 
