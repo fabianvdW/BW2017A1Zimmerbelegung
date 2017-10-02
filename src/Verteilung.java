@@ -5,7 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 public class Verteilung {
-    private static String path = "zimmerbelegung1";
+    private static String path = "zimmerbelegung6";
     private static boolean istMoeglich = true;
 
     public static void main(String[] args) {
@@ -244,9 +244,7 @@ public class Verteilung {
                     }
                 } while (c != ' ');
                 k += likeName.length() + 1;
-                if(!likeName.equals(name)) {
-                    likes.add(likeName);
-                }
+                likes.add(likeName);
             }
             String dislikess = daten.get(i + 2);
             dislikess = dislikess.substring(2);
@@ -267,9 +265,7 @@ public class Verteilung {
                     }
                 } while (c != ' ');
                 k += likeName.length() + 1;
-                if(!likeName.equals(name)) {
-                    dislikes.add(likeName);
-                }
+                dislikes.add(likeName);
             }
             personen.add(new Person(likes, dislikes, name));
 
