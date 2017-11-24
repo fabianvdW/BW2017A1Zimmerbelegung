@@ -1,50 +1,45 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Person {
-    private ArrayList<String> like = new ArrayList<>();
-    private ArrayList<String> dislike = new ArrayList<>();
-    private String name;
-    public Person(String name){
-        this.name=name;
+
+    // Attributes
+    private String name; // own name
+    private ArrayList<String> likes = new ArrayList<>(); // names of the people liked
+    private ArrayList<String> dislikes = new ArrayList<>(); //names of the pople disliked
+
+    // Constructor with 3 arguments (liked people, diksliked people, name)
+    public Person(ArrayList<String> likes, ArrayList<String> dislike, String name) {
+        setName(name);
+        setLikes(likes);
+        setDislikes(dislike);
     }
 
-    public Person(ArrayList<String> like, ArrayList<String> dislike, String name) {
-        this.like = like;
-        this.dislike = dislike;
-        this.name = name;
+    // Getter
+    public ArrayList<String> getLikes() {
+        return likes;
     }
 
-    public ArrayList<String> getLike() {
-        return like;
-    }
-
-    public ArrayList<String> getDislike() {
-        return dislike;
+    public ArrayList<String> getDislikes() {
+        return dislikes;
     }
 
     public String getName() {
         return name;
     }
-    @Override
-    public boolean equals(Object o){
-        if(o instanceof Person){
-            Person p=(Person)o ;
-            return p.getName().equals(this.name);
-        }
-        return false;
+
+    // Setter
+    public void setName(String name) {
+        this.name = name;
     }
-    @Override
-    public String toString() {
-        String s = "";
-        s+= name + " ";
-        /*s+="Likes: ";
-        for(String so: getLike()){
-            s+=so+" ";
-        }
-        s+="Dislikes: ";
-        for(String so: getDislike()){
-            s+=so+" ";
-        }*/
-        return s;
+
+    public void setLikes(ArrayList<String> likes) {
+        this.likes = likes;
+        this.likes.removeAll(Arrays.asList("", null));
+    }
+
+    public void setDislikes(ArrayList<String> dislikes) {
+        this.dislikes = dislikes;
+        this.dislikes.removeAll(Arrays.asList("", null));
     }
 }
